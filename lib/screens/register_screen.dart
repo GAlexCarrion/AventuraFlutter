@@ -20,12 +20,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
   XFile? _imagen;
   bool _estaCargando = false;
 
-  // --- CORRECCIÓN: FUNCIÓN PARA ELEGIR CÁMARA O GALERÍA ---
   Future<void> _obtenerImagen(ImageSource fuente) async {
     final ImagePicker picker = ImagePicker();
     final XFile? imagenSeleccionada = await picker.pickImage(
-      source: fuente, // Aquí ahora recibe 'camera' o 'gallery'
-      imageQuality: 50, // Comprime un poco para que suba rápido a Supabase
+      source: fuente, 
+      imageQuality: 50, 
     );
     
     if (imagenSeleccionada != null) {
@@ -35,7 +34,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
     }
   }
 
-  // Menú para que el usuario elija
   void _mostrarOpcionesCamara() {
     showModalBottomSheet(
       context: context,
@@ -48,7 +46,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
             title: const Text("Tomar Foto (Cámara)", style: TextStyle(color: Colors.white)),
             onTap: () {
               Navigator.pop(context);
-              _obtenerImagen(ImageSource.camera); // ABRE LA CÁMARA
+              _obtenerImagen(ImageSource.camera); // ABRE LA CAMARA
             },
           ),
           ListTile(
@@ -56,7 +54,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
             title: const Text("Elegir de Galería", style: TextStyle(color: Colors.white)),
             onTap: () {
               Navigator.pop(context);
-              _obtenerImagen(ImageSource.gallery); // ABRE LA GALERÍA
+              _obtenerImagen(ImageSource.gallery); // ABRE LA GALERIA
             },
           ),
         ],
@@ -106,7 +104,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       });
 
       if (mounted) {
-        _mostrarExito(); // Al dar Aceptar aquí, nos llevará al login
+        _mostrarExito(); 
       }
     } on FirebaseAuthException catch (e) {
       _mostrarMensaje(e.message ?? "Error al registrar");
@@ -161,7 +159,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
             const SizedBox(height: 25),
             
             GestureDetector(
-              onTap: _mostrarOpcionesCamara, // CORRECCIÓN: Llama al menú de opciones
+              onTap: _mostrarOpcionesCamara, 
               child: Stack(
                 alignment: Alignment.bottomRight,
                 children: [
@@ -235,7 +233,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   void _mostrarExito() {
     showDialog(
       context: context,
-      barrierDismissible: false, // Obliga a dar clic en el botón
+      barrierDismissible: false, 
       builder: (context) => AlertDialog(
         backgroundColor: const Color(0xFF0D1117),
         title: const Text("¡Éxito!", style: TextStyle(color: Color(0xFFC5A059))),
@@ -244,7 +242,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
           TextButton(
             onPressed: () {
               Navigator.pop(context); // Cierra el diálogo
-              Navigator.pushReplacementNamed(context, '/login'); // TE LLEVA AL LOGIN
+              Navigator.pushReplacementNamed(context, '/login'); 
             }, 
             child: const Text("ACEPTAR", style: TextStyle(color: Color(0xFFC5A059)))
           )

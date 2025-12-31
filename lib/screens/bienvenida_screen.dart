@@ -8,7 +8,6 @@ class BienvenidaScreen extends StatelessWidget {
     return Scaffold(
       body: Stack(
         children: [
-          // Fondo de imagen
           Container(
             decoration: const BoxDecoration(
               image: DecorationImage(
@@ -20,7 +19,6 @@ class BienvenidaScreen extends StatelessWidget {
             ),
           ),
           
-          // Filtro oscuro (Vignette)
           Container(
             decoration: BoxDecoration(
               gradient: LinearGradient(
@@ -50,7 +48,7 @@ class BienvenidaScreen extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 30),
       child: Column(
-        mainAxisSize: MainAxisSize.min, // LÍNEA CORREGIDA AQUÍ
+        mainAxisSize: MainAxisSize.min, 
         children: [
           const Icon(Icons.auto_awesome_motion, color: Color(0xFFC5A059), size: 60),
           const SizedBox(height: 20),

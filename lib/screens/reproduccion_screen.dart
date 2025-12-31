@@ -16,27 +16,24 @@ class _ReproduccionScreenState extends State<ReproduccionScreen> {
   @override
   void initState() {
     super.initState();
-    // Se inicializa con la URL que vendrá de Firebase (clave "video")
-    // Si aún no tienes videos, puedes usar uno de prueba: 
-    // widget.pelicula["video"] ?? "https://flutter.github.io/assets-for-api-docs/assets/videos/bee.mp4"
     _controller = VideoPlayerController.networkUrl(
       Uri.parse(widget.pelicula["video"] ?? ""),
     )..initialize().then((_) {
         setState(() {});
-        _controller.play(); // Inicia automáticamente al cargar
+        _controller.play(); 
       });
   }
 
   @override
   void dispose() {
-    _controller.dispose(); // Libera la memoria
+    _controller.dispose(); 
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF0D1117), // Mismo fondo que el catálogo
+      backgroundColor: const Color(0xFF0D1117), 
       appBar: AppBar(
         title: Text(
           widget.pelicula["titulo"],
@@ -97,7 +94,7 @@ class _ReproduccionScreenState extends State<ReproduccionScreen> {
               ),
             ),
 
-            // INFORMACIÓN DE LA PELÍCULA
+            // INFORMACION DE LA PELÍCULA
             Padding(
               padding: const EdgeInsets.all(20),
               child: Column(

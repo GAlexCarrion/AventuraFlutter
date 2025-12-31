@@ -3,8 +3,8 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'firebase_options.dart';
 
-// Importa tus pantallas
-import 'screens/bienvenida_screen.dart'; // Importa la de bienvenida
+//pantallas
+import 'screens/bienvenida_screen.dart'; 
 import 'screens/register_screen.dart';
 import 'screens/login_screen.dart'; 
 import 'screens/catalogo_screen.dart';
@@ -33,10 +33,10 @@ class AppAventura extends StatelessWidget {
       title: 'AventuraFlutter',
       debugShowCheckedModeBanner: false,
       theme: ThemeData.dark(),
-      // RUTA INICIAL: Bienvenida
+      
       initialRoute: '/', 
       routes: {
-        '/': (context) => const BienvenidaScreen(), // Bienvenida es la principal
+        '/': (context) => const BienvenidaScreen(), 
         '/registro': (context) => const RegisterScreen(),
         '/login': (context) => const LoginScreen(), 
         '/catalogo': (context) => const CatalogoScreen(),

@@ -13,7 +13,6 @@ class CatalogoScreen extends StatefulWidget {
 class _CatalogoScreenState extends State<CatalogoScreen> {
   final DatabaseReference _dbRef = FirebaseDatabase.instance.ref();
   
-  // --- NUEVAS VARIABLES PARA EL PERFIL ---
   final User? _usuarioActual = FirebaseAuth.instance.currentUser;
   Map<dynamic, dynamic>? _datosUsuario;
 
@@ -23,7 +22,6 @@ class _CatalogoScreenState extends State<CatalogoScreen> {
     _escucharDatosUsuario();
   }
 
-  // --- ESCUCHAR DATOS DEL USUARIO EN TIEMPO REAL ---
   void _escucharDatosUsuario() {
     if (_usuarioActual != null) {
       _dbRef.child('usuarios/${_usuarioActual.uid}').onValue.listen((event) {
@@ -43,7 +41,6 @@ class _CatalogoScreenState extends State<CatalogoScreen> {
     }
   }
 
-  // --- FUNCIÓN PARA MOSTRAR EL MODAL DE DETALLES (MANTENIDA) ---
   void _mostrarDetalles(BuildContext context, dynamic peli) {
     showModalBottomSheet(
       context: context,
@@ -157,7 +154,7 @@ class _CatalogoScreenState extends State<CatalogoScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFF0D1117),
-      // --- MENU LATERAL DERECHO (DRAWER) ---
+      //DRAWER ---
       endDrawer: _construirMenuPerfil(),
       appBar: AppBar(
         title: const Text("EXPEDICIONES", 
@@ -165,10 +162,9 @@ class _CatalogoScreenState extends State<CatalogoScreen> {
         backgroundColor: const Color(0xFF0D1117),
         elevation: 0,
         actions: [
-          // BOTÓN DE PERFIL CIRCULAR
           Builder(
             builder: (context) => GestureDetector(
-              onTap: () => Scaffold.of(context).openEndDrawer(), // Abre el drawer derecho
+              onTap: () => Scaffold.of(context).openEndDrawer(), 
               child: Padding(
                 padding: const EdgeInsets.only(right: 16.0, top: 8, bottom: 8),
                 child: CircleAvatar(
@@ -195,7 +191,6 @@ class _CatalogoScreenState extends State<CatalogoScreen> {
             List<dynamic> todasLasPeliculas = [];
 
             baseDatos.forEach((key, value) {
-              // Filtramos para no incluir la rama de 'usuarios' en el catálogo de películas
               if (key != 'usuarios') {
                 if (value is List) {
                   todasLasPeliculas.addAll(value.where((item) => item != null));
@@ -223,7 +218,7 @@ class _CatalogoScreenState extends State<CatalogoScreen> {
     );
   }
 
-  // --- WIDGET PARA EL MENÚ LATERAL ---
+  // WIDGET PARA EL MENU LATERAL
   Widget _construirMenuPerfil() {
     return Drawer(
       backgroundColor: const Color(0xFF0D1117),
