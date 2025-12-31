@@ -1,32 +1,45 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:aventura_flutter/screens/bienvenida_screen.dart';
-import 'package:aventura_flutter/screens/login_screen.dart';
-import 'package:aventura_flutter/screens/register_screen.dart';
-import 'package:aventura_flutter/screens/catalogo_screen.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'firebase_options.dart';
 
-void main() async {
+// Importa tus pantallas
+import 'screens/bienvenida_screen.dart'; // Importa la de bienvenida
+import 'screens/register_screen.dart';
+import 'screens/login_screen.dart'; 
+import 'screens/catalogo_screen.dart';
+
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(); 
-  runApp(const AppProyecto());
+  
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+
+  await Supabase.initialize(
+    url: 'https://bjfuujarglzomagebqsa.supabase.co',
+    anonKey: 'sb_publishable_GAShKGml7TZ1x_fgVS76pQ_789Bzl92', 
+  );
+
+  runApp(const AppAventura());
 }
 
-class AppProyecto extends StatelessWidget {
-  const AppProyecto({super.key});
+class AppAventura extends StatelessWidget {
+  const AppAventura({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      title: 'AventuraFlutter',
       debugShowCheckedModeBanner: false,
-      title: 'Aventura Flutter',
-      initialRoute: '/',
+      theme: ThemeData.dark(),
+      // RUTA INICIAL: Bienvenida
+      initialRoute: '/', 
       routes: {
-        '/': (context) => const BienvenidaScreen(),
-        '/login': (context) => const LoginScreen(),
+        '/': (context) => const BienvenidaScreen(), // Bienvenida es la principal
         '/registro': (context) => const RegisterScreen(),
+        '/login': (context) => const LoginScreen(), 
         '/catalogo': (context) => const CatalogoScreen(),
-        // NOTA: No registramos '/reproduccion' aquí porque 
-        // pasamos el objeto directamente en el Navigator.push del Catálogo.
       },
     );
   }

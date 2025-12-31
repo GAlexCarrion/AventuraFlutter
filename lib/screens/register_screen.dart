@@ -1,6 +1,9 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -13,109 +16,239 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final TextEditingController _nombreController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  
+  XFile? _imagen;
+  bool _estaCargando = false;
 
-  Future<void> registrarUsuario() async {
+  // --- CORRECCIÓN: FUNCIÓN PARA ELEGIR CÁMARA O GALERÍA ---
+  Future<void> _obtenerImagen(ImageSource fuente) async {
+    final ImagePicker picker = ImagePicker();
+    final XFile? imagenSeleccionada = await picker.pickImage(
+      source: fuente, // Aquí ahora recibe 'camera' o 'gallery'
+      imageQuality: 50, // Comprime un poco para que suba rápido a Supabase
+    );
+    
+    if (imagenSeleccionada != null) {
+      setState(() {
+        _imagen = imagenSeleccionada;
+      });
+    }
+  }
+
+  // Menú para que el usuario elija
+  void _mostrarOpcionesCamara() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: const Color(0xFF0D1117),
+      builder: (context) => Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          ListTile(
+            leading: const Icon(Icons.camera_alt, color: Color(0xFFC5A059)),
+            title: const Text("Tomar Foto (Cámara)", style: TextStyle(color: Colors.white)),
+            onTap: () {
+              Navigator.pop(context);
+              _obtenerImagen(ImageSource.camera); // ABRE LA CÁMARA
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.photo_library, color: Color(0xFFC5A059)),
+            title: const Text("Elegir de Galería", style: TextStyle(color: Colors.white)),
+            onTap: () {
+              Navigator.pop(context);
+              _obtenerImagen(ImageSource.gallery); // ABRE LA GALERÍA
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _registrarUsuario() async {
+    if (_nombreController.text.isEmpty || _emailController.text.isEmpty || _passwordController.text.isEmpty) {
+      _mostrarMensaje("Por favor, llena todos los campos");
+      return;
+    }
+
+    setState(() => _estaCargando = true);
+
     try {
-      // CORRECCIÓN: Usamos final para evitar el error de PigeonUserDetails
       final userCredential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
         email: _emailController.text.trim(),
         password: _passwordController.text.trim(),
       );
 
-      if (userCredential.user != null) {
-        String uid = userCredential.user!.uid;
+      String uid = userCredential.user!.uid;
+      String? fotoUrl;
 
-        // Guardar en Realtime Database
-        DatabaseReference dbRef = FirebaseDatabase.instance.ref().child('usuarios');
-        await dbRef.child(uid).set({
-          "nombre": _nombreController.text.trim(),
-          "correo": _emailController.text.trim(),
-          "fecha_registro": DateTime.now().toIso8601String(),
-          "rango": "Explorador Novato",
-        });
+      if (_imagen != null) {
+        final file = File(_imagen!.path);
+        final supabase = Supabase.instance.client;
 
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text("¡Registro exitoso! Bienvenido explorador.")),
-          );
-          Navigator.pop(context); 
-        }
+        await supabase.storage.from('fotoPerfil').upload(
+          '$uid.png',
+          file,
+          fileOptions: const FileOptions(upsert: true, contentType: 'image/png'),
+        );
+
+        fotoUrl = supabase.storage.from('fotoPerfil').getPublicUrl('$uid.png');
+      } else {
+        fotoUrl = "https://cdn-icons-png.flaticon.com/512/1154/1154446.png";
+      }
+
+      DatabaseReference dbRef = FirebaseDatabase.instance.ref().child('usuarios');
+      await dbRef.child(uid).set({
+        "nombre": _nombreController.text.trim(),
+        "correo": _emailController.text.trim(),
+        "fotoPerfil": fotoUrl,
+        "fecha_registro": DateTime.now().toIso8601String(),
+        "rango": "Explorador Novato",
+      });
+
+      if (mounted) {
+        _mostrarExito(); // Al dar Aceptar aquí, nos llevará al login
       }
     } on FirebaseAuthException catch (e) {
-      String mensaje = "Error en el registro";
-      if (e.code == 'weak-password') mensaje = "La contraseña es muy débil";
-      if (e.code == 'email-already-in-use') mensaje = "El correo ya existe";
-      
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(mensaje)));
-      }
+      _mostrarMensaje(e.message ?? "Error al registrar");
+    } finally {
+      if (mounted) setState(() => _estaCargando = false);
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        decoration: const BoxDecoration(
-          image: DecorationImage(
-            image: NetworkImage("https://i.pinimg.com/736x/1a/10/72/1a10720b00b3c1f780de2dd3663d6722.jpg"),
-            fit: BoxFit.cover,
-          ),
-        ),
-        child: SafeArea(
-          child: Center(
-            child: SingleChildScrollView(
-              child: _formularioRegistro(),
+      backgroundColor: const Color(0xFF0D1117),
+      body: Stack(
+        children: [
+          _buildFondo(),
+          SafeArea(
+            child: Center(
+              child: SingleChildScrollView(child: _buildFormulario()),
             ),
           ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFondo() {
+    return Container(
+      decoration: const BoxDecoration(
+        image: DecorationImage(
+          image: NetworkImage("https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&q=80"),
+          fit: BoxFit.cover,
+          colorFilter: ColorFilter.mode(Colors.black54, BlendMode.darken),
         ),
       ),
     );
   }
 
-  Widget _formularioRegistro() {
+  Widget _buildFormulario() {
     return Padding(
       padding: const EdgeInsets.all(24),
       child: Container(
         padding: const EdgeInsets.all(24),
         decoration: BoxDecoration(
-          color: const Color.fromARGB(199, 1, 1, 1),
-          borderRadius: BorderRadius.circular(16),
+          color: const Color(0xFF0D1117).withOpacity(0.9),
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: const Color(0xFFC5A059), width: 1.5),
         ),
         child: Column(
-          mainAxisSize: MainAxisSize.min,
           children: [
-            const Text("Registro", style: TextStyle(color: Colors.redAccent, fontSize: 28, fontWeight: FontWeight.bold)),
-            const SizedBox(height: 24),
-            TextField(
-              controller: _nombreController,
-              decoration: const InputDecoration(labelText: "Nombre", labelStyle: TextStyle(color: Colors.white), prefixIcon: Icon(Icons.person, color: Colors.white)),
-              style: const TextStyle(color: Colors.white),
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: _emailController,
-              decoration: const InputDecoration(labelText: "Correo", labelStyle: TextStyle(color: Colors.white), prefixIcon: Icon(Icons.email, color: Colors.white)),
-              style: const TextStyle(color: Colors.white),
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: _passwordController,
-              obscureText: true,
-              decoration: const InputDecoration(labelText: "Contraseña", labelStyle: TextStyle(color: Colors.white), prefixIcon: Icon(Icons.lock, color: Colors.white)),
-              style: const TextStyle(color: Colors.white),
-            ),
-            const SizedBox(height: 32),
-            SizedBox(
-              width: double.infinity,
-              child: FilledButton(
-                style: const ButtonStyle(backgroundColor: WidgetStatePropertyAll(Color.fromRGBO(158, 32, 32, 1))),
-                onPressed: registrarUsuario, 
-                child: const Text("Registrarse"),
+            const Text("UNIRSE A LA AVENTURA", 
+              style: TextStyle(color: Color(0xFFC5A059), fontSize: 22, fontWeight: FontWeight.bold, letterSpacing: 1.5)),
+            const SizedBox(height: 25),
+            
+            GestureDetector(
+              onTap: _mostrarOpcionesCamara, // CORRECCIÓN: Llama al menú de opciones
+              child: Stack(
+                alignment: Alignment.bottomRight,
+                children: [
+                  CircleAvatar(
+                    radius: 55,
+                    backgroundColor: const Color(0xFFC5A059),
+                    backgroundImage: _imagen != null ? FileImage(File(_imagen!.path)) : null,
+                    child: _imagen == null 
+                      ? const Icon(Icons.camera_alt, size: 40, color: Colors.black) 
+                      : null,
+                  ),
+                  const CircleAvatar(
+                    backgroundColor: Colors.white,
+                    radius: 15,
+                    child: Icon(Icons.add, size: 20, color: Colors.black),
+                  )
+                ],
               ),
             ),
+            const SizedBox(height: 25),
+            _inputField("Nombre", Icons.person_outline, _nombreController),
+            const SizedBox(height: 15),
+            _inputField("Correo", Icons.email_outlined, _emailController),
+            const SizedBox(height: 15),
+            _inputField("Contraseña", Icons.lock_outline, _passwordController, obscure: true),
+            const SizedBox(height: 35),
+            _estaCargando 
+              ? const CircularProgressIndicator(color: Color(0xFFC5A059))
+              : _buildBotonRegistro(),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildBotonRegistro() {
+    return SizedBox(
+      width: double.infinity,
+      height: 50,
+      child: ElevatedButton(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: const Color(0xFFC5A059),
+          foregroundColor: Colors.black,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        ),
+        onPressed: _registrarUsuario,
+        child: const Text("REGISTRARSE", style: TextStyle(fontWeight: FontWeight.bold)),
+      ),
+    );
+  }
+
+  Widget _inputField(String label, IconData icon, TextEditingController controller, {bool obscure = false}) {
+    return TextField(
+      controller: controller,
+      obscureText: obscure,
+      style: const TextStyle(color: Colors.white),
+      decoration: InputDecoration(
+        labelText: label,
+        labelStyle: const TextStyle(color: Colors.white70),
+        prefixIcon: Icon(icon, color: const Color(0xFFC5A059)),
+        enabledBorder: const UnderlineInputBorder(borderSide: BorderSide(color: Colors.white24)),
+        focusedBorder: const UnderlineInputBorder(borderSide: BorderSide(color: Color(0xFFC5A059))),
+      ),
+    );
+  }
+
+  void _mostrarMensaje(String txt) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(txt)));
+  }
+
+  void _mostrarExito() {
+    showDialog(
+      context: context,
+      barrierDismissible: false, // Obliga a dar clic en el botón
+      builder: (context) => AlertDialog(
+        backgroundColor: const Color(0xFF0D1117),
+        title: const Text("¡Éxito!", style: TextStyle(color: Color(0xFFC5A059))),
+        content: const Text("Ya eres parte de AventuraFlutter. Inicia sesión para comenzar."),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context); // Cierra el diálogo
+              Navigator.pushReplacementNamed(context, '/login'); // TE LLEVA AL LOGIN
+            }, 
+            child: const Text("ACEPTAR", style: TextStyle(color: Color(0xFFC5A059)))
+          )
+        ],
       ),
     );
   }

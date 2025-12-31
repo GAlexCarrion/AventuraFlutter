@@ -1,6 +1,7 @@
 {
   "project_info": {
     "project_number": "964290414172",
+    "firebase_url": "https://aventuraflutter-default-rtdb.firebaseio.com",
     "project_id": "aventuraflutter",
     "storage_bucket": "aventuraflutter.firebasestorage.app"
   },

@@ -12,6 +12,29 @@ class CatalogoScreen extends StatefulWidget {
 
 class _CatalogoScreenState extends State<CatalogoScreen> {
   final DatabaseReference _dbRef = FirebaseDatabase.instance.ref();
+  
+  // --- NUEVAS VARIABLES PARA EL PERFIL ---
+  final User? _usuarioActual = FirebaseAuth.instance.currentUser;
+  Map<dynamic, dynamic>? _datosUsuario;
+
+  @override
+  void initState() {
+    super.initState();
+    _escucharDatosUsuario();
+  }
+
+  // --- ESCUCHAR DATOS DEL USUARIO EN TIEMPO REAL ---
+  void _escucharDatosUsuario() {
+    if (_usuarioActual != null) {
+      _dbRef.child('usuarios/${_usuarioActual.uid}').onValue.listen((event) {
+        if (mounted) {
+          setState(() {
+            _datosUsuario = event.snapshot.value as Map<dynamic, dynamic>?;
+          });
+        }
+      });
+    }
+  }
 
   Future<void> cerrarSesion() async {
     await FirebaseAuth.instance.signOut();
@@ -20,7 +43,7 @@ class _CatalogoScreenState extends State<CatalogoScreen> {
     }
   }
 
-  // --- FUNCIÓN PARA MOSTRAR EL MODAL DE DETALLES ---
+  // --- FUNCIÓN PARA MOSTRAR EL MODAL DE DETALLES (MANTENIDA) ---
   void _mostrarDetalles(BuildContext context, dynamic peli) {
     showModalBottomSheet(
       context: context,
@@ -62,7 +85,6 @@ class _CatalogoScreenState extends State<CatalogoScreen> {
                     ),
                   ),
                   const SizedBox(height: 10),
-                  // Fila de Info Rápida (Año / Categoría)
                   Row(
                     children: [
                       Container(
@@ -101,7 +123,6 @@ class _CatalogoScreenState extends State<CatalogoScreen> {
                     style: const TextStyle(color: Colors.white70, fontSize: 14),
                   ),
                   const SizedBox(height: 30),
-                  // Botón de Acción Principal
                   SizedBox(
                     width: double.infinity,
                     height: 50,
@@ -136,16 +157,32 @@ class _CatalogoScreenState extends State<CatalogoScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFF0D1117),
+      // --- MENU LATERAL DERECHO (DRAWER) ---
+      endDrawer: _construirMenuPerfil(),
       appBar: AppBar(
         title: const Text("EXPEDICIONES", 
           style: TextStyle(color: Color(0xFFC5A059), fontWeight: FontWeight.bold)),
         backgroundColor: const Color(0xFF0D1117),
         elevation: 0,
         actions: [
-          IconButton(
-            onPressed: cerrarSesion,
-            icon: const Icon(Icons.logout, color: Color(0xFFC5A059)),
-          )
+          // BOTÓN DE PERFIL CIRCULAR
+          Builder(
+            builder: (context) => GestureDetector(
+              onTap: () => Scaffold.of(context).openEndDrawer(), // Abre el drawer derecho
+              child: Padding(
+                padding: const EdgeInsets.only(right: 16.0, top: 8, bottom: 8),
+                child: CircleAvatar(
+                  backgroundColor: const Color(0xFFC5A059).withOpacity(0.3),
+                  backgroundImage: _datosUsuario != null && _datosUsuario!['fotoPerfil'] != null
+                      ? NetworkImage(_datosUsuario!['fotoPerfil'])
+                      : null,
+                  child: _datosUsuario == null || _datosUsuario!['fotoPerfil'] == null
+                      ? const Icon(Icons.person, color: Color(0xFFC5A059))
+                      : null,
+                ),
+              ),
+            ),
+          ),
         ],
       ),
       body: StreamBuilder(
@@ -158,16 +195,21 @@ class _CatalogoScreenState extends State<CatalogoScreen> {
             List<dynamic> todasLasPeliculas = [];
 
             baseDatos.forEach((key, value) {
-              if (value is List) {
-                todasLasPeliculas.addAll(value.where((item) => item != null));
-              } else if (value is Map) todasLasPeliculas.addAll(value.values);
+              // Filtramos para no incluir la rama de 'usuarios' en el catálogo de películas
+              if (key != 'usuarios') {
+                if (value is List) {
+                  todasLasPeliculas.addAll(value.where((item) => item != null));
+                } else if (value is Map) {
+                  todasLasPeliculas.addAll(value.values);
+                }
+              }
             });
 
             return GridView.builder(
               padding: const EdgeInsets.all(16),
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 2,
-                childAspectRatio: 0.65, // Ajustado para dar espacio al botón inferior
+                childAspectRatio: 0.65, 
                 crossAxisSpacing: 16,
                 mainAxisSpacing: 16,
               ),
@@ -177,6 +219,41 @@ class _CatalogoScreenState extends State<CatalogoScreen> {
           }
           return const Center(child: CircularProgressIndicator(color: Color(0xFFC5A059)));
         },
+      ),
+    );
+  }
+
+  // --- WIDGET PARA EL MENÚ LATERAL ---
+  Widget _construirMenuPerfil() {
+    return Drawer(
+      backgroundColor: const Color(0xFF0D1117),
+      child: Column(
+        children: [
+          UserAccountsDrawerHeader(
+            decoration: const BoxDecoration(color: Color(0xFF161B22)),
+            currentAccountPicture: CircleAvatar(
+              backgroundImage: _datosUsuario != null && _datosUsuario!['fotoPerfil'] != null
+                  ? NetworkImage(_datosUsuario!['fotoPerfil'])
+                  : null,
+            ),
+            accountName: Text(_datosUsuario?['nombre'] ?? "Explorador", 
+                style: const TextStyle(color: Color(0xFFC5A059), fontWeight: FontWeight.bold)),
+            accountEmail: Text(_datosUsuario?['correo'] ?? _usuarioActual?.email ?? ""),
+          ),
+          ListTile(
+            leading: const Icon(Icons.stars, color: Color(0xFFC5A059)),
+            title: const Text("Rango", style: TextStyle(color: Colors.white)),
+            subtitle: Text(_datosUsuario?['rango'] ?? "Novato", style: const TextStyle(color: Colors.white70)),
+          ),
+          const Divider(color: Colors.white24),
+          const Spacer(),
+          ListTile(
+            leading: const Icon(Icons.logout, color: Colors.redAccent),
+            title: const Text("Cerrar Sesión", style: TextStyle(color: Colors.redAccent)),
+            onTap: cerrarSesion,
+          ),
+          const SizedBox(height: 20),
+        ],
       ),
     );
   }
@@ -216,7 +293,6 @@ class _CatalogoScreenState extends State<CatalogoScreen> {
                 style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13),
               ),
             ),
-            // BOTÓN PARA ABRIR EL MODAL
             IconButton(
               onPressed: () => _mostrarDetalles(context, peli),
               icon: const Icon(Icons.info_outline, color: Color(0xFFC5A059), size: 20),

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart'; 
-import 'package:aventura_flutter/screens/catalogo_screen.dart'; // Importante para la navegación directa
+import 'package:aventura_flutter/screens/catalogo_screen.dart'; 
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -15,7 +15,6 @@ class _LoginScreenState extends State<LoginScreen> {
 
   Future<void> loginUsuario() async {
     try {
-      // CORRECCIÓN: Usamos final para capturar la respuesta y evitar el error de PigeonUserDetails
       final userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(
         email: _emailController.text.trim(),
         password: _passwordController.text.trim(),
@@ -46,8 +45,8 @@ class _LoginScreenState extends State<LoginScreen> {
         await Future.delayed(const Duration(seconds: 2));
 
         if (mounted) {
-          Navigator.pop(context); // Cierra el diálogo
-          // Navegación directa para asegurar que entre al catálogo
+          Navigator.pop(context); 
+          
           Navigator.pushReplacement(
             context, 
             MaterialPageRoute(builder: (context) => const CatalogoScreen())
