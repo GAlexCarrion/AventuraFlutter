@@ -1,0 +1,66 @@
+{
+  "Expediciones Legendarias": [
+    {
+      "titulo": "Uncharted: Fuera del Mapa",
+      "descripcion": "Nathan Drake y su mentor Sully se embarcan en una peligrosa aventura para encontrar el tesoro perdido de Magallanes.",
+      "imagen": "https://www.infobae.com/new-resizer/ZIk9dRzkleqpvKnXdui5fHeo3p0=/arc-anglerfish-arc2-prod-infobae/public/OHTRRCF5JVCO5GK5UZYEWQ5BEQ.jpg",
+      "video": "https://www.pexels.com/es-es/download/video/13581912/"
+
+    },
+    {
+      "titulo": "Tomb Raider: La Leyenda",
+      "descripcion": "Lara Croft, la independiente hija de un aventurero perdido, debe esforzarse más allá de sus límites para resolver el misterio de su desaparición.",
+      "imagen": "https://m.media-amazon.com/images/M/MV5BMWZmYmUyMWEtNjM4MC00MTIyLWI0MzMtYTJhMTU5NTBjZWUxXkEyXkFqcGc@._V1_.jpg",
+      "video": "https://www.pexels.com/es-es/download/video/13581912/"
+
+    },
+    {
+      "titulo": "Mundo Jurásico: Dominio",
+      "descripcion": "La aventura definitiva donde dos generaciones se unen para salvar el futuro en un mundo compartido con dinosaurios.",
+      "imagen": "https://m.media-amazon.com/images/S/pv-target-images/14f70746b66246fae3c52c0e484678fb3af765a2a25abdd0c2c325939c9752e6.jpg",
+      "video": "https://www.pexels.com/es-es/download/video/13581912/"
+
+    }
+  ],
+  "Tesoros y Misterios": [
+    {
+      "titulo": "El Tesoro del Amazonas",
+      "descripcion": "Un cazarrecompensas es enviado a la selva para traer de vuelta al hijo de un magnate, terminando en una búsqueda de oro.",
+      "imagen": "https://es.web.img3.acsta.net/pictures/14/04/23/12/18/181531.jpg",
+      "video": "https://www.pexels.com/es-es/download/video/13581912/"
+
+    },
+    {
+      "titulo": "Jungle Cruise",
+      "descripcion": "Un valiente capitán de barco y una científica viajan a través de la selva amazónica en busca de un árbol con poderes curativos.",
+      "imagen": "https://lumiere-a.akamaihd.net/v1/images/p_junglecruise_21740_v2_bb7f0ae4_d4ef51c5.png",
+      "video": "https://www.pexels.com/es-es/download/video/13581912/"
+
+    },
+    {
+      "titulo": "Kong: La Isla Calavera",
+      "descripcion": "Un equipo de exploradores y soldados viaja a una isla inexplorada en el Pacífico, sin saber que están entrando en el dominio del mítico Kong.",
+      "imagen": "https://i.blogs.es/7967c7/skull-island-japanese/1366_2000.jpg",
+      "video": "https://www.pexels.com/es-es/download/video/13581912/"
+
+    }
+  ],
+  "Viajes Épicos": [
+    {
+      "titulo": "El Señor de los Anillos",
+      "descripcion": "Un joven Hobbit es encargado de destruir un anillo antiguo para salvar al mundo del malvado Sauron.",
+      "imagen": "https://es.web.img2.acsta.net/c_310_420/medias/nmedia/18/89/67/45/20061512.jpg",
+      "video": "https://www.pexels.com/es-es/download/video/13581912/"
+
+
+    },
+    {
+      "titulo": "Avatar: El Camino del Agua",
+      "descripcion": "Jake Sully vive con su nueva familia en el planeta Pandora. Una amenaza conocida regresa para terminar lo que empezó.",
+      "imagen": "https://pics.filmaffinity.com/avatar_the_way_of_water-722646748-mmed.jpg",
+      "video": "https://www.pexels.com/es-es/download/video/13581912/"
+
+      
+    }
+  ]
+}

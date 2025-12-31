@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "964290414172",
+    "project_id": "aventuraflutter",
+    "storage_bucket": "aventuraflutter.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:964290414172:android:d57bc09adc0bc813ea0899",
+        "android_client_info": {
+          "package_name": "com.example.aventura_flutter"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCm7X-4rb-cSrToHvGHgwY6nQGCrOZlcwM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
